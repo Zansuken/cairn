@@ -104,6 +104,10 @@ class _RootGateState extends ConsumerState<RootGate> with WidgetsBindingObserver
   /// settings (requesting the Android 13+ permission once when enabled).
   Future<void> _syncNotifications() async {
     final settings = await ref.read(databaseProvider).settingsDao.get();
+    // Don't touch notifications (and never slam the OS permission dialog) until
+    // the user has finished onboarding — otherwise the prompt interrupts the
+    // first-run flow before they know what Cairn is.
+    if (!settings.onboardingComplete) return;
     final notifications = ref.read(notificationServiceProvider);
     if (settings.notificationsEnabled && !_askedNotifPermission) {
       _askedNotifPermission = true;
