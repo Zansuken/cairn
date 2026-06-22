@@ -1,0 +1,19 @@
+# Release signing for Cairn — copy this file to `android/key.properties` and fill
+# it in. NEVER commit android/key.properties or the .jks keystore (both are
+# gitignored). Keep a secure backup of the keystore + passwords: losing the
+# upload key means you must contact Google to reset it.
+#
+# 1. Generate an upload keystore (run once, store it OUTSIDE the repo):
+#
+#    keytool -genkey -v -keystore /path/to/cairn-upload.jks \
+#      -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+#
+# 2. Fill the four values below and save as android/key.properties.
+# 3. Build the Play artifact:  flutter build appbundle --release
+#
+# storeFile may be absolute (recommended) or relative to android/app/.
+
+storePassword=CHANGE_ME
+keyPassword=CHANGE_ME
+keyAlias=upload
+storeFile=/path/to/cairn-upload.jks

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Native speed-bump + foreground-service copy. Plain English, no em dashes, no
+     fancy unicode. Headline/body are set in code (they carry the app name + streak). -->
+<resources>
+    <string name="sb_stay_strong">Stay strong</string>
+    <string name="sb_open_anyway">Open anyway</string>
+
+    <string name="sb_channel_name">Streak guard</string>
+    <string name="sb_notif_title">Streak guard is on</string>
+    <string name="sb_notif_text">A calm pause before you open a tracked app. Tap to manage.</string>
+</resources>
