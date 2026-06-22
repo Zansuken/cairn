@@ -20,7 +20,7 @@ Note: there is a settings field named "analyticsOptIn" stored in the local datab
 
 ## What is stored locally, and why
 
-All of the following data is stored only in Cairn's private storage on your device (the app's files directory, for example /data/data/dev.cairn/files/cairn.sqlite, and the app's private SharedPreferences). None of it leaves your device.
+All of the following data is stored only in Cairn's private storage on your device (the app's files directory, for example /data/data/io.github.zansuken.cairn/files/cairn.sqlite, and the app's private SharedPreferences). None of it leaves your device.
 
 - **Tracked apps**: the package ID and display name of each app you choose to track, when you added it, and its status (active or freed, including an uninstall timestamp). This is what you asked Cairn to watch.
 - **Daily streak records**: per app, the day window and the daily verdict (clean, slipped, or unverified) and when that verdict was computed. This is how Cairn tracks your progress over time.
@@ -45,7 +45,7 @@ Cairn requests the following Android permissions. Each is used by the app for th
 - **FOREGROUND_SERVICE_SPECIAL_USE**: Declares the speed-bump service as a special-use foreground service for the intervention pause.
 - **REQUEST_IGNORE_BATTERY_OPTIMIZATIONS**: Lets you exempt Cairn from battery optimization so the speed-bump watcher is not killed in the background by aggressive battery management.
 
-Cairn's compiled manifest also includes three additional permissions that come from dependencies: ACCESS_NETWORK_STATE (which only checks whether a network is available and cannot transmit data), VIBRATE, and WAKE_LOCK. These are included by the flutter_local_notifications library and are not used by Cairn's own code.
+Cairn's compiled manifest also includes a few permissions that come from dependencies rather than from Cairn's own features: ACCESS_NETWORK_STATE (which only checks whether a network is available and cannot transmit data), VIBRATE, and WAKE_LOCK (added by the flutter_local_notifications library), plus a private signature-level permission whose name ends in DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION (added automatically by AndroidX to protect a broadcast receiver that Cairn registers internally; it is held only by Cairn itself and grants nothing to other apps). None of these transmit any data.
 
 ## Opening links and sharing
 

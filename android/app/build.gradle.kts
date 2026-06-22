@@ -30,8 +30,11 @@ android {
     }
 
     defaultConfig {
-        // Placeholder production applicationId — replace with a domain you own before Play release.
-        applicationId = "dev.cairn"
+        // Permanent Play/F-Droid identity, tied to the GitHub-hosted project
+        // (io.github.<user>, the F-Droid convention for apps without a dedicated
+        // domain). The internal namespace/Kotlin package stays dev.cairn, which
+        // is not user-visible, so the manifest and native sources are untouched.
+        applicationId = "io.github.zansuken.cairn"
         // minSdk 26 (Android 8.0): solid WorkManager behaviour + broad device coverage (PRD §3).
         minSdk = 26
         targetSdk = flutter.targetSdkVersion
