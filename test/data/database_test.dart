@@ -57,6 +57,18 @@ void main() {
       expect(loaded.freedAt, DateTime(2026, 2, 1));
     });
 
+    test('rename changes the display name and leaves the rest untouched', () async {
+      await db.trackedAppsDao.upsert(
+        TrackedApp(packageId: 'com.x', displayName: 'X', addedAt: DateTime(2026, 1, 1)),
+      );
+      await db.trackedAppsDao.rename('com.x', 'Twitter');
+
+      final loaded = await db.trackedAppsDao.find('com.x');
+      expect(loaded!.displayName, 'Twitter');
+      expect(loaded.status, AppStatus.active);
+      expect(loaded.addedAt, DateTime(2026, 1, 1));
+    });
+
     test('watchAll emits the current set', () async {
       final emissions = <int>[];
       final sub = db.trackedAppsDao.watchAll().listen((apps) => emissions.add(apps.length));

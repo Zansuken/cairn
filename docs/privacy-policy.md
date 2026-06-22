@@ -47,6 +47,14 @@ Cairn requests the following Android permissions. Each is used by the app for th
 
 Cairn's compiled manifest also includes three additional permissions that come from dependencies: ACCESS_NETWORK_STATE (which only checks whether a network is available and cannot transmit data), VIBRATE, and WAKE_LOCK. These are included by the flutter_local_notifications library and are not used by Cairn's own code.
 
+## Opening links and sharing
+
+Cairn can open a link in your device's browser, such as the link to its source code or a page to leave an optional tip. When it does, your browser handles the connection and Cairn passes only the web address, sending none of your data.
+
+Cairn can also hand a short text recap of a summited cairn to your device's share sheet, where you choose which app receives it. Cairn only prepares the text; the app you pick does the sending.
+
+In both cases Cairn itself still has no internet permission, and nothing is sent unless you choose to send it.
+
 ## No third parties, no analytics, no ads
 
 Cairn does not include any third-party data SDKs. There are no analytics, crash-reporting, telemetry, or advertising components. No data is shared with any third party, because no data leaves your device.

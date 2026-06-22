@@ -25,6 +25,12 @@ class TrackedAppsDao extends DatabaseAccessor<CairnDatabase> with _$TrackedAppsD
 
   Future<void> upsert(TrackedApp app) => into(trackedApps).insertOnConflictUpdate(app.toCompanion());
 
+  /// Rename only — the user's chosen display name. Status, addedAt, and the
+  /// streak cache (keyed by packageId) are all left untouched.
+  Future<void> rename(String packageId, String displayName) =>
+      (update(trackedApps)..where((t) => t.packageId.equals(packageId)))
+          .write(TrackedAppsCompanion(displayName: Value(displayName)));
+
   /// Convert to the permanent "Freed" trophy on uninstall (PRD §2).
   Future<void> markFreed(String packageId, DateTime freedAt) =>
       (update(trackedApps)..where((t) => t.packageId.equals(packageId))).write(

@@ -45,6 +45,13 @@ dependencies:
   timezone: ^0.11.0
   flutter_timezone: ^5.1.0
   package_info_plus: ^8.0.0
+  # Opens outbound links (source repo, F-Droid, tip page) in the system browser.
+  # Cairn itself stays network-free: it hands a URL to the browser, sending no
+  # data of its own. url_launcher adds no INTERNET permission, only <queries>.
+  url_launcher: ^6.3.0
+  # Hands a summit recap to the OS share sheet. The chosen target app does the
+  # sending; Cairn transmits nothing and gains no INTERNET permission.
+  share_plus: ^11.0.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

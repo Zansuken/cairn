@@ -12,7 +12,9 @@ import '../domain/history_window.dart';
 import '../domain/model/day_record.dart';
 import '../domain/model/day_state.dart';
 import '../domain/model/tracked_app.dart';
+import '../platform/link_launcher.dart';
 import '../platform/notification_service.dart';
+import '../platform/sharer.dart';
 import '../platform/usage_service.dart';
 import '../ui/app_detail/app_detail_state.dart';
 import '../ui/home/home_state.dart';
@@ -28,6 +30,12 @@ final usageServiceProvider = Provider<UsageService>((ref) => const UsageService(
 
 final notificationServiceProvider =
     Provider<NotificationService>((ref) => const NotificationService());
+
+/// Outbound-link opener (source repo, F-Droid, tip page). Overridden in tests.
+final linkLauncherProvider = Provider<LinkLauncher>((ref) => const UrlLauncherLink());
+
+/// OS share-sheet handoff (summit recap). Overridden in tests.
+final sharerProvider = Provider<Sharer>((ref) => const SharePlusSharer());
 
 final reconciliationServiceProvider = Provider<ReconciliationService>(
   (ref) => ReconciliationService(

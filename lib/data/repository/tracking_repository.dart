@@ -31,6 +31,14 @@ class TrackingRepository {
     await syncWorkerConfig();
   }
 
+  /// Change an app's display name. Resync so the speed-bump overlay's label
+  /// snapshot reflects the new name too (streaks/history are keyed by packageId,
+  /// so renaming never disturbs them).
+  Future<void> renameApp(String packageId, String displayName) async {
+    await db.trackedAppsDao.rename(packageId, displayName);
+    await syncWorkerConfig();
+  }
+
   Future<void> removeApp(String packageId) async {
     await db.trackedAppsDao.remove(packageId);
     await db.streakCacheDao.removeAppState(packageId);

@@ -139,8 +139,8 @@ class _ActiveView extends ConsumerWidget {
               ),
               const SizedBox(height: 26),
               OutlinedButton(
-                onPressed: () => _soon(context, 'Editing reminders & name'),
-                child: const Text('Edit notifications & name'),
+                onPressed: () => _rename(context, ref, vm),
+                child: const Text('Rename'),
               ),
               const SizedBox(height: 10),
               TextButton(
@@ -252,12 +252,12 @@ class _ActiveView extends ConsumerWidget {
 }
 
 // ── Freed / summit layout ────────────────────────────────────────────────────
-class _FreedView extends StatelessWidget {
+class _FreedView extends ConsumerWidget {
   const _FreedView({required this.vm});
   final AppDetailVm vm;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       children: [
         Padding(
@@ -308,7 +308,7 @@ class _FreedView extends StatelessWidget {
               ],
               const SizedBox(height: 30),
               FilledButton(
-                onPressed: () => _soon(context, 'Sharing'),
+                onPressed: () => ref.read(sharerProvider).share(_summitShareText(vm)),
                 child: const Text('Share your summit'),
               ),
               const SizedBox(height: 10),
@@ -421,11 +421,76 @@ Future<void> _confirmStop(BuildContext context, WidgetRef ref, AppDetailVm vm) a
   if (context.mounted) Navigator.of(context).maybePop();
 }
 
-void _soon(BuildContext context, String what) {
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text('$what — coming soon')));
+/// Rename the cairn's display name. Streaks and history are keyed by packageId,
+/// so a rename only changes the label (shown here and on the speed-bump overlay).
+Future<void> _rename(BuildContext context, WidgetRef ref, AppDetailVm vm) async {
+  final next = await showDialog<String>(
+    context: context,
+    builder: (ctx) => _RenameDialog(initial: vm.name),
+  );
+  if (next == null || next.isEmpty || next == vm.name) return;
+  await ref.read(trackingRepositoryProvider).renameApp(vm.packageId, next);
 }
+
+/// A StatefulWidget so the [TextEditingController] is disposed only once the
+/// dialog is gone (disposing it inline right after the route pops crashes the
+/// closing-frame rebuild).
+class _RenameDialog extends StatefulWidget {
+  const _RenameDialog({required this.initial});
+
+  final String initial;
+
+  @override
+  State<_RenameDialog> createState() => _RenameDialogState();
+}
+
+class _RenameDialogState extends State<_RenameDialog> {
+  late final TextEditingController _controller = TextEditingController(text: widget.initial);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() => Navigator.of(context).pop(_controller.text.trim());
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: CairnColors.surface,
+      title: Text('Rename',
+          style: CairnType.interface(18, FontWeight.w600, color: CairnColors.textHi)),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        textInputAction: TextInputAction.done,
+        style: CairnType.interface(16, FontWeight.w400, color: CairnColors.textHi),
+        decoration: const InputDecoration(hintText: 'Display name'),
+        onSubmitted: (_) => _submit(),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          style: TextButton.styleFrom(foregroundColor: CairnColors.textDim),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: _submit,
+          style: TextButton.styleFrom(foregroundColor: CairnColors.textHi),
+          child: const Text('Save'),
+        ),
+      ],
+    );
+  }
+}
+
+/// The recap handed to the share sheet when a cairn is summited. Plain text so
+/// it reads well in any target app; no link, so nothing of the user's leaves
+/// beyond what they choose to send.
+String _summitShareText(AppDetailVm vm) =>
+    'I summited ${vm.name} with Cairn. ${vm.lifetimeClean} clean days total, '
+    'and a ${vm.currentStreak}-day final run.';
 
 const _months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 String _formatDate(DateTime d) => '${_months[d.month - 1]} ${d.day}, ${d.year}';

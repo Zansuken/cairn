@@ -1,16 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/cairn_colors.dart';
 import '../../core/theme/cairn_typography.dart';
+import '../../providers/providers.dart';
+
+/// The public source repository. The "Source code" link opens it in the browser.
+const _repoUrl = 'https://github.com/Zansuken/cairn';
+
+/// The tip page. "Leave a tip" opens it in the browser; the supporter picks the
+/// amount there (Ko-fi has no URL way to preset one, and nothing leaves Cairn).
+const _kofiUrl = 'https://ko-fi.com/zansuken';
 
 /// Privacy / About (screen-prompts). The plain-language promise that nothing
 /// leaves the device, the trust bullets, links to the source, and a no-strings
-/// "support" tip card. No account, no servers — so no Riverpod and no network.
-class PrivacyAboutScreen extends StatelessWidget {
+/// "support" tip card. The outbound links open in the browser; Cairn itself
+/// sends nothing.
+class PrivacyAboutScreen extends ConsumerWidget {
   const PrivacyAboutScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: CairnColors.canvas,
       body: SafeArea(
@@ -43,9 +53,9 @@ class PrivacyAboutScreen extends StatelessWidget {
                   const SizedBox(height: 14),
                   _bullet('Open source.', ' Anyone can read exactly what it does.'),
                   _sectionLabel('SEE FOR YOURSELF'),
-                  _linksCard(context),
+                  _linksCard(context, ref),
                   _sectionLabel('SUPPORT'),
-                  _supportCard(context),
+                  _supportCard(context, ref),
                   _footer(),
                 ],
               ),
@@ -156,25 +166,28 @@ class PrivacyAboutScreen extends StatelessWidget {
   }
 
   // ── "See for yourself" link card ────────────────────────────────────────
-  Widget _linksCard(BuildContext context) {
+  Widget _linksCard(BuildContext context, WidgetRef ref) {
     return Container(
       decoration: BoxDecoration(
         color: CairnColors.surface,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: CairnColors.borderSoft),
       ),
+      // F-Droid is intentionally omitted until Cairn is actually published there
+      // (a dead "coming soon" link reads worse than no link at all).
       child: Column(
         children: [
-          _linkRow(context, 'Source code', 'github.com/cairn-app', divider: true),
-          _linkRow(context, 'Get it on F-Droid', 'Free & open app store', divider: false),
+          _linkRow(context, 'Source code', 'github.com/Zansuken/cairn',
+              divider: false, onTap: () => ref.read(linkLauncherProvider).open(_repoUrl)),
         ],
       ),
     );
   }
 
-  Widget _linkRow(BuildContext context, String title, String subtitle, {required bool divider}) {
+  Widget _linkRow(BuildContext context, String title, String subtitle,
+      {required bool divider, required VoidCallback onTap}) {
     return InkWell(
-      onTap: () => _soon(context),
+      onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
         decoration: BoxDecoration(
@@ -204,7 +217,8 @@ class PrivacyAboutScreen extends StatelessWidget {
   }
 
   // ── "Support" tip card ──────────────────────────────────────────────────
-  Widget _supportCard(BuildContext context) {
+  Widget _supportCard(BuildContext context, WidgetRef ref) {
+    final shape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(13));
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -225,40 +239,21 @@ class PrivacyAboutScreen extends StatelessWidget {
                 color: CairnColors.textDim, height: 1.55),
           ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(child: _tipButton(context, '\$3', filled: false)),
-              const SizedBox(width: 10),
-              Expanded(child: _tipButton(context, '\$5', filled: false)),
-              const SizedBox(width: 10),
-              Expanded(child: _tipButton(context, 'Other', filled: true)),
-            ],
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: () => ref.read(linkLauncherProvider).open(_kofiUrl),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 13),
+                minimumSize: Size.zero,
+                shape: shape,
+              ),
+              child: Text('Leave a tip',
+                  style: CairnType.interface(15, FontWeight.w600, color: CairnColors.onSage)),
+            ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _tipButton(BuildContext context, String label, {required bool filled}) {
-    final shape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(13));
-    const padding = EdgeInsets.symmetric(vertical: 12);
-    if (filled) {
-      return FilledButton(
-        onPressed: () => _soon(context),
-        style: FilledButton.styleFrom(padding: padding, minimumSize: Size.zero, shape: shape),
-        child: Text(label, style: CairnType.interface(15, FontWeight.w600, color: CairnColors.onSage)),
-      );
-    }
-    return OutlinedButton(
-      onPressed: () => _soon(context),
-      style: OutlinedButton.styleFrom(
-        foregroundColor: CairnColors.textHi,
-        side: const BorderSide(color: CairnColors.borderStrong),
-        padding: padding,
-        minimumSize: Size.zero,
-        shape: shape,
-      ),
-      child: Text(label, style: CairnType.interface(15, FontWeight.w600, color: CairnColors.textHi)),
     );
   }
 
@@ -278,9 +273,4 @@ class PrivacyAboutScreen extends StatelessWidget {
     );
   }
 
-  void _soon(BuildContext context) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(const SnackBar(content: Text('Coming soon')));
-  }
 }
