@@ -67,7 +67,16 @@ class SpeedBumpService : Service() {
         if (isScreenOn()) startPolling()
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int = START_STICKY
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // Re-affirm the poll loop on every start command. The Dart foreground
+        // re-affirm (RootGate._syncSpeedBump) usually targets an already-running
+        // service, so onCreate does not run again; aggressive OEMs can also freeze
+        // the worker thread while Cairn is backgrounded. Restarting the loop here
+        // recovers polling whenever Cairn returns to the foreground. startPolling()
+        // is idempotent — it clears the queue before re-posting.
+        if (this::worker.isInitialized && isScreenOn()) startPolling()
+        return START_STICKY
+    }
 
     override fun onDestroy() {
         stopPolling()

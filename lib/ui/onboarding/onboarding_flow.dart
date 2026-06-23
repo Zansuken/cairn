@@ -5,16 +5,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/cairn_colors.dart';
 import '../../core/theme/cairn_typography.dart';
 import '../../data/db/database.dart';
+import '../../platform/oem_support.dart';
 import '../../platform/usage_service.dart';
 import '../../providers/providers.dart';
 import '../permission/permission_screen.dart';
+import '../speedbump/keep_alive_primer.dart';
 import '../speedbump/streak_guard_actions.dart';
 import '../speedbump/streak_guard_primer.dart';
 import '../widgets/stone_stack.dart';
 import 'all_set_screen.dart';
 import 'pick_apps_screen.dart';
 
-enum _Step { welcome1, welcome2, permission, pick, streakGuard, allSet }
+enum _Step { welcome1, welcome2, permission, pick, streakGuard, keepAlive, allSet }
 
 /// First-run flow (screen-prompts §4–7): pitch → how it works → permission →
 /// pick apps → all set. Marking [AppSettings.onboardingComplete] true on finish
@@ -117,7 +119,11 @@ class _OnboardingFlowState extends ConsumerState<OnboardingFlow> with WidgetsBin
     if (!await bridge.isIgnoringBatteryOptimizations()) {
       await bridge.requestIgnoreBatteryOptimizations();
     }
-    if (mounted) setState(() => _step = _Step.allSet);
+    // On phones that aggressively freeze background apps (HONOR/Huawei/Xiaomi/...),
+    // the battery exemption is not enough — the watcher is frozen seconds after
+    // Cairn is backgrounded. Send the user to the OEM app-launch whitelist first.
+    final needsKeepAlive = isAggressiveOem(await bridge.deviceManufacturer());
+    if (mounted) setState(() => _step = needsKeepAlive ? _Step.keepAlive : _Step.allSet);
   }
 
   Future<void> _finish() async {
@@ -143,6 +149,10 @@ class _OnboardingFlowState extends ConsumerState<OnboardingFlow> with WidgetsBin
           onTurnOn: _enableStreakGuardFromOnboarding,
           onSkip: () => setState(() => _step = _Step.allSet),
           needsPermissionHint: _overlayDenied,
+        ),
+      _Step.keepAlive => KeepAlivePrimer(
+          onOpenSettings: () => ref.read(usageServiceProvider).openProtectedAppsSettings(),
+          onContinue: () => setState(() => _step = _Step.allSet),
         ),
       _Step.allSet => AllSetScreen(trackedNames: _trackedNames, onStart: _finish),
     };

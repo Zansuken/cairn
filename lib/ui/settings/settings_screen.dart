@@ -5,19 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/cairn_colors.dart';
 import '../../core/theme/cairn_typography.dart';
 import '../../data/db/database.dart';
+import '../../platform/oem_support.dart';
 import '../../providers/providers.dart';
 import '../privacy/privacy_about_screen.dart';
 import '../recap/daily_recap_screen.dart';
 import '../speedbump/streak_guard_actions.dart';
-
-/// Manufacturers known to aggressively kill background services / foreground
-/// services. Only on these do we surface the "keep running in background" hint,
-/// to avoid cluttering stock-Android phones where it is unnecessary.
-const _aggressiveOems = {
-  'huawei', 'honor', 'xiaomi', 'redmi', 'poco', 'oppo', 'realme',
-  'vivo', 'iqoo', 'oneplus', 'meizu', 'samsung', 'tecno', 'infinix',
-  'asus', 'lenovo',
-};
 
 /// Settings (screen-prompts §16): the quiet control room — your day, the calm
 /// notifications, privacy. A bottom-nav destination, so the title carries no
@@ -78,7 +70,7 @@ class SettingsScreen extends ConsumerWidget {
     var showProtectedApps = false;
     if (guardOn) {
       batteryExempt = ref.watch(batteryExemptProvider).value;
-      showProtectedApps = _aggressiveOems.contains(ref.watch(deviceManufacturerProvider).value ?? '');
+      showProtectedApps = isAggressiveOem(ref.watch(deviceManufacturerProvider).value ?? '');
     }
     return ListView(
       physics: const BouncingScrollPhysics(),
