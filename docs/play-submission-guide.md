@@ -71,25 +71,54 @@ PACKAGE_USAGE_STATS (usage access) and SYSTEM_ALERT_WINDOW (draw over other apps
 are granted by the user in system settings. If review asks, the justifications are
 in `docs/play-permissions-justification.md`.
 
-## 5. Production release
+## 5. Upload the first build (internal testing)
 
-Play Console -> Release -> Production -> Create new release.
-- Play App Signing: leave enabled (recommended). Your `cairn-upload.jks` is the
-  upload key; Google manages the app signing key.
+Test and release -> Testing -> Internal testing -> Create new release.
+- Play App Signing: leave enabled. `cairn-upload.jks` is the upload key; Google
+  manages the app signing key.
 - Rebuild a fresh AAB right before upload:
   `flutter build appbundle`
   then upload `build/app/outputs/bundle/release/app-release.aab`.
-- Release name: 1.0.0 (1).
-- Release notes (en-US): a short first-release note, for example:
+- Release name: 1.0.0 (1). Add a short release note.
+- Add yourself (and a device or two) as internal testers, opt in via the link,
+  and confirm the app installs and runs from Play. Internal testing is instant
+  and has no tester minimum. This is just a smoke test.
+
+## 6. Closed test (REQUIRED before production)
+
+New personal developer accounts (created after 13 November 2023) must run a
+closed test with at least 12 testers opted in for 14 continuous days before they
+can apply for production access. Organization accounts are exempt. The minimum
+dropped from 20 to 12 testers on 11 December 2024; the 14-day duration is unchanged.
+
+- Test and release -> Testing -> Closed testing -> create or use a track, upload
+  the same AAB, and add at least 12 testers (by email list or a Google Group).
+- Each tester must opt in via the test link and install from Play on a real
+  device. Emulators do not count.
+- Keep 12 or more testers opted in and actually using the app for 14 consecutive
+  days. Start this as early as possible; the 14-day clock runs while you finish
+  the store listing and the rest.
+
+## 7. Apply for production access
+
+After 14 days with 12+ opted-in testers, an "Apply for production access" form
+becomes available (on the dashboard, or Test and release -> Production). Complete
+and submit it. Google reviews the application.
+
+## 8. Production release and rollout
+
+Once production access is granted:
+- Test and release -> Production -> Create new release. Promote the tested AAB.
+- Release notes (en-US), for example:
   "First release. Grow a streak for every day you stay away from an app you choose to track. On-device, no accounts."
 - Countries and regions: select where to publish (all, or start with a few).
+- Resolve any dashboard warnings, then send for review. First reviews can take a
+  few days.
 
-## 6. Review and roll out
-
-- Resolve any warnings on the release dashboard.
-- Send for review. First reviews can take a few days.
-- Consider a closed or internal test track first if you want to validate the
-  upload and listing before public production.
+Note: the Main store listing graphics (step 2) are not required to start a closed
+test, so begin the closed test first to start the 14-day clock, and finish the
+listing during those two weeks. App content declarations (step 4) are required
+before any release, including the first internal or closed test build.
 
 ## Regenerating store assets
 
